@@ -647,6 +647,10 @@ extern "C" {
     WHISPER_API bool whisper_full_get_segment_speaker_turn_next(struct whisper_context * ctx, int i_segment);
     WHISPER_API bool whisper_full_get_segment_speaker_turn_next_from_state(struct whisper_state * state, int i_segment);
 
+    // Get whether the segment was truncated due to buffer limits
+    WHISPER_API bool whisper_full_get_segment_is_truncated           (struct whisper_context * ctx, int i_segment);
+    WHISPER_API bool whisper_full_get_segment_is_truncated_from_state(struct whisper_state * state, int i_segment);
+
     // Get the text of the specified segment
     WHISPER_API const char * whisper_full_get_segment_text           (struct whisper_context * ctx, int i_segment);
     WHISPER_API const char * whisper_full_get_segment_text_from_state(struct whisper_state * state, int i_segment);

@@ -467,6 +467,7 @@ struct whisper_segment {
     std::vector<whisper_token_data> tokens;
 
     bool speaker_turn_next;
+    bool is_truncated;
 };
 
 struct whisper_batch {
@@ -7660,7 +7661,7 @@ int whisper_full_with_state(
 
                             //printf("tt0 = %d, tt1 = %d, text = %s, token = %s, token_id = %d, tid = %d\n", tt0, tt1, text.c_str(), ctx->vocab.id_to_token[tokens_cur[i].id].c_str(), tokens_cur[i].id, tokens_cur[i].tid);
 
-                            result_all.push_back({ tt0, tt1, text, state->no_speech_prob, {}, speaker_turn_next });
+                            result_all.push_back({ tt0, tt1, text, state->no_speech_prob, {}, speaker_turn_next, false });
                             for (int j = i0; j <= i; j++) {
                                 result_all.back().tokens.push_back(tokens_cur[j]);
                             }
@@ -7708,7 +7709,8 @@ int whisper_full_with_state(
                         fflush(stdout);
                     }
 
-                    result_all.push_back({ tt0, tt1, text, state->no_speech_prob, {}, speaker_turn_next });
+                    const bool is_truncated_flag = (tokens_cur.empty() || tokens_cur.back().id != whisper_token_eot(ctx));
+                    result_all.push_back({ tt0, tt1, text, state->no_speech_prob, {}, speaker_turn_next, is_truncated_flag });
                     for (int j = i0; j < (int) tokens_cur.size(); j++) {
                         result_all.back().tokens.push_back(tokens_cur[j]);
                     }
@@ -8033,6 +8035,14 @@ bool whisper_full_get_segment_speaker_turn_next_from_state(struct whisper_state 
 
 bool whisper_full_get_segment_speaker_turn_next(struct whisper_context * ctx, int i_segment) {
     return ctx->state->result_all[i_segment].speaker_turn_next;
+}
+
+bool whisper_full_get_segment_is_truncated_from_state(struct whisper_state * state, int i_segment) {
+    return state->result_all[i_segment].is_truncated;
+}
+
+bool whisper_full_get_segment_is_truncated(struct whisper_context * ctx, int i_segment) {
+    return ctx->state->result_all[i_segment].is_truncated;
 }
 
 const char * whisper_full_get_segment_text_from_state(struct whisper_state * state, int i_segment) {

@@ -738,7 +738,7 @@ static void output_json(
 
                 start_obj(nullptr);
                     times_o(t0, t1, false);
-                    value_s("text", text, !params.diarize && !params.tinydiarize && !full);
+                    value_s("text", text, false);
 
                     if (full) {
                         start_arr("tokens");
@@ -785,16 +785,18 @@ static void output_json(
                                 value_f("t_dtw", mt.data.t_dtw, true);
                             end_obj(j == (nm - 1));
                         }
-                        end_arr(!params.diarize && !params.tinydiarize);
+                        end_arr(false);
                     }
 
                     if (params.diarize && pcmf32s.size() == 2) {
-                        value_s("speaker", estimate_diarization_speaker(pcmf32s, t0, t1, true).c_str(), true);
+                        value_s("speaker", estimate_diarization_speaker(pcmf32s, t0, t1, true).c_str(), false);
                     }
 
                     if (params.tinydiarize) {
-                        value_b("speaker_turn_next", whisper_full_get_segment_speaker_turn_next(ctx, i), true);
+                        value_b("speaker_turn_next", whisper_full_get_segment_speaker_turn_next(ctx, i), false);
                     }
+
+                    value_b("is_truncated", whisper_full_get_segment_is_truncated(ctx, i), true);
                 end_obj(i == (n_segments - 1));
             }
 
